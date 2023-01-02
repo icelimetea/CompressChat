@@ -1,12 +1,8 @@
 # CompressChat
 
 ### This mod is very experimental.
-### Also, trusting random players with
-### not sending something malicious in chat
-### is not very bright idea, as well as
-### passing random stuff through the decompression
-### library. But if you really want to use it,
-### the requirements are below.
+### Also, trusting random players with not sending something malicious in chat is not very bright idea, as well as passing random stuff through the decompression library.
+### If you really want to use it, the requirements are below.
 
 Mod that passes your messages through the compression algorithm, so you could write a message longer than 256 symbols in length.
 In order to view compressed messages, other players should have this mod installed too.
