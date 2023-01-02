@@ -10,7 +10,7 @@ import java.util.zip.Inflater;
 
 public final class DeflateCompressor implements MessageCodec.StringCompressor {
 
-    private static final int INITIAL_BUF_SIZE = 16;
+    private static final int INITIAL_BUF_SIZE = 32;
 
     private final Deflater deflater;
     private final Inflater inflater;
@@ -31,7 +31,7 @@ public final class DeflateCompressor implements MessageCodec.StringCompressor {
 
         while (!deflater.finished()) {
             if (bytesRead == compressed.length)
-                compressed = Arrays.copyOf(compressed, compressed.length << 1);
+                compressed = Arrays.copyOf(compressed, compressed.length + INITIAL_BUF_SIZE);
 
             bytesRead += deflater.deflate(compressed, bytesRead, compressed.length - bytesRead);
         }
@@ -51,7 +51,7 @@ public final class DeflateCompressor implements MessageCodec.StringCompressor {
 
         while (!inflater.finished()) {
             if (bytesRead == decompressed.length)
-                decompressed = Arrays.copyOf(decompressed, decompressed.length << 1);
+                decompressed = Arrays.copyOf(decompressed, decompressed.length + INITIAL_BUF_SIZE);
 
             try {
                 bytesRead += inflater.inflate(decompressed, bytesRead, decompressed.length - bytesRead);

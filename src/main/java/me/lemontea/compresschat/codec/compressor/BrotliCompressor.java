@@ -9,6 +9,8 @@ import java.util.Arrays;
 
 public final class BrotliCompressor implements MessageCodec.StringCompressor {
 
+    private static final int DECOMPRESSION_SIZE_LIMIT = 1 << 14;
+
     private static final int INITIAL_BUF_SIZE = 32;
 
     private static final int BROTLI_FALSE = 0;
@@ -229,7 +231,7 @@ public final class BrotliCompressor implements MessageCodec.StringCompressor {
 
                 while ((int) BROTLI_ENCODER_HAS_MORE_OUTPUT.invokeExact(brotliState) == BROTLI_TRUE) {
                     if (bytesRead == result.length)
-                        result = Arrays.copyOf(result, result.length << 1);
+                        result = Arrays.copyOf(result, result.length + INITIAL_BUF_SIZE);
 
                     ctx.setSizeOut(result.length - bytesRead);
 
@@ -313,7 +315,7 @@ public final class BrotliCompressor implements MessageCodec.StringCompressor {
                     case NEEDS_MORE_OUTPUT, SUCCESS -> {
                         while ((int) BROTLI_DECODER_HAS_MORE_OUTPUT.invokeExact(brotliState) == BROTLI_TRUE) {
                             if (bytesRead == result.length)
-                                result = Arrays.copyOf(result, result.length << 1);
+                                result = Arrays.copyOf(result, result.length + INITIAL_BUF_SIZE);
 
                             ctx.setSizeOut(result.length - bytesRead);
 
@@ -328,6 +330,9 @@ public final class BrotliCompressor implements MessageCodec.StringCompressor {
                             MemorySegment.copy(decompressedData, ValueLayout.JAVA_BYTE, 0, result, bytesRead, (int) decompressedData.byteSize());
 
                             bytesRead += decompressedData.byteSize();
+
+                            if (bytesRead > DECOMPRESSION_SIZE_LIMIT)
+                                throw new IllegalStateException("Message is too long!");
                         }
                     }
 
