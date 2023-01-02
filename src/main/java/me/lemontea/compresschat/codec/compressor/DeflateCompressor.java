@@ -58,6 +58,9 @@ public final class DeflateCompressor implements MessageCodec.StringCompressor {
             } catch (DataFormatException e) {
                 throw new IllegalArgumentException("Unable to decompress contents!", e);
             }
+
+            if (bytesRead > DECOMPRESSION_SIZE_LIMIT)
+                throw new IllegalArgumentException("Message is too long!");
         }
 
         inflater.reset();

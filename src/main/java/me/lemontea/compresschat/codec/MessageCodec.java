@@ -161,6 +161,8 @@ public final class MessageCodec {
 
     public interface StringCompressor {
 
+        int DECOMPRESSION_SIZE_LIMIT = 1 << 14;
+
         byte[] compress(String str);
 
         String decompress(byte[] data, int offset, int length);

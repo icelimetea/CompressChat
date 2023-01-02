@@ -9,8 +9,6 @@ import java.util.Arrays;
 
 public final class BrotliCompressor implements MessageCodec.StringCompressor {
 
-    private static final int DECOMPRESSION_SIZE_LIMIT = 1 << 14;
-
     private static final int INITIAL_BUF_SIZE = 32;
 
     private static final int BROTLI_FALSE = 0;
