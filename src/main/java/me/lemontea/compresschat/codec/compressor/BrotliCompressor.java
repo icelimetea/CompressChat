@@ -31,16 +31,22 @@ public final class BrotliCompressor implements MessageCodec.StringCompressor {
     private static final MethodHandle BROTLI_DECODER_DESTROY_INSTANCE;
 
     static {
-        System.loadLibrary("brotlidec");
-        System.loadLibrary("brotlienc");
-
         Linker linker = Linker.nativeLinker();
-        SymbolLookup lookup = SymbolLookup.loaderLookup();
+
+        SymbolLookup decoderLookup = SymbolLookup.libraryLookup(
+                System.mapLibraryName("brotlidec"),
+                MemorySession.global()
+        );
+
+        SymbolLookup encoderLookup = SymbolLookup.libraryLookup(
+                System.mapLibraryName("brotlienc"),
+                MemorySession.global()
+        );
 
         // Encoder
 
         BROTLI_ENCODER_CREATE_INSTANCE =
-                lookup.lookup("BrotliEncoderCreateInstance").map(memorySegment -> linker.downcallHandle(
+                encoderLookup.lookup("BrotliEncoderCreateInstance").map(memorySegment -> linker.downcallHandle(
                         memorySegment,
                         FunctionDescriptor.of(
                                 ValueLayout.ADDRESS,
@@ -51,7 +57,7 @@ public final class BrotliCompressor implements MessageCodec.StringCompressor {
                 )).orElseThrow();
 
         BROTLI_ENCODER_SET_PARAMETER =
-                lookup.lookup("BrotliEncoderSetParameter").map(memorySegment -> linker.downcallHandle(
+                encoderLookup.lookup("BrotliEncoderSetParameter").map(memorySegment -> linker.downcallHandle(
                         memorySegment,
                         FunctionDescriptor.of(
                                 ValueLayout.JAVA_INT,
@@ -62,7 +68,7 @@ public final class BrotliCompressor implements MessageCodec.StringCompressor {
                 )).orElseThrow();
 
         BROTLI_ENCODER_COMPRESS_STREAM =
-                lookup.lookup("BrotliEncoderCompressStream").map(memorySegment -> linker.downcallHandle(
+                encoderLookup.lookup("BrotliEncoderCompressStream").map(memorySegment -> linker.downcallHandle(
                         memorySegment,
                         FunctionDescriptor.of(
                                 ValueLayout.JAVA_INT,
@@ -77,7 +83,7 @@ public final class BrotliCompressor implements MessageCodec.StringCompressor {
                 )).orElseThrow();
 
         BROTLI_ENCODER_TAKE_OUTPUT =
-                lookup.lookup("BrotliEncoderTakeOutput").map(memorySegment -> linker.downcallHandle(
+                encoderLookup.lookup("BrotliEncoderTakeOutput").map(memorySegment -> linker.downcallHandle(
                         memorySegment,
                         FunctionDescriptor.of(
                                 ValueLayout.ADDRESS,
@@ -87,7 +93,7 @@ public final class BrotliCompressor implements MessageCodec.StringCompressor {
                 )).orElseThrow();
 
         BROTLI_ENCODER_IS_FINISHED =
-                lookup.lookup("BrotliEncoderIsFinished").map(memorySegment -> linker.downcallHandle(
+                encoderLookup.lookup("BrotliEncoderIsFinished").map(memorySegment -> linker.downcallHandle(
                         memorySegment,
                         FunctionDescriptor.of(
                                 ValueLayout.JAVA_INT,
@@ -96,7 +102,7 @@ public final class BrotliCompressor implements MessageCodec.StringCompressor {
                 )).orElseThrow();
 
         BROTLI_ENCODER_HAS_MORE_OUTPUT =
-                lookup.lookup("BrotliEncoderHasMoreOutput").map(memorySegment -> linker.downcallHandle(
+                encoderLookup.lookup("BrotliEncoderHasMoreOutput").map(memorySegment -> linker.downcallHandle(
                         memorySegment,
                         FunctionDescriptor.of(
                                 ValueLayout.JAVA_INT,
@@ -105,7 +111,7 @@ public final class BrotliCompressor implements MessageCodec.StringCompressor {
                 )).orElseThrow();
 
         BROTLI_ENCODER_DESTROY_INSTANCE =
-                lookup.lookup("BrotliEncoderDestroyInstance").map(memorySegment -> linker.downcallHandle(
+                encoderLookup.lookup("BrotliEncoderDestroyInstance").map(memorySegment -> linker.downcallHandle(
                         memorySegment,
                         FunctionDescriptor.ofVoid(ValueLayout.ADDRESS)
                 )).orElseThrow();
@@ -113,7 +119,7 @@ public final class BrotliCompressor implements MessageCodec.StringCompressor {
         // Decoder
 
         BROTLI_DECODER_CREATE_INSTANCE =
-                lookup.lookup("BrotliDecoderCreateInstance").map(memorySegment -> linker.downcallHandle(
+                decoderLookup.lookup("BrotliDecoderCreateInstance").map(memorySegment -> linker.downcallHandle(
                         memorySegment,
                         FunctionDescriptor.of(
                                 ValueLayout.ADDRESS,
@@ -124,7 +130,7 @@ public final class BrotliCompressor implements MessageCodec.StringCompressor {
                 )).orElseThrow();
 
         BROTLI_DECODER_DECOMPRESS_STREAM =
-                lookup.lookup("BrotliDecoderDecompressStream").map(memorySegment -> linker.downcallHandle(
+                decoderLookup.lookup("BrotliDecoderDecompressStream").map(memorySegment -> linker.downcallHandle(
                         memorySegment,
                         FunctionDescriptor.of(
                                 ValueLayout.JAVA_INT,
@@ -138,7 +144,7 @@ public final class BrotliCompressor implements MessageCodec.StringCompressor {
                 )).orElseThrow();
 
         BROTLI_DECODER_HAS_MORE_OUTPUT =
-                lookup.lookup("BrotliDecoderHasMoreOutput").map(memorySegment -> linker.downcallHandle(
+                decoderLookup.lookup("BrotliDecoderHasMoreOutput").map(memorySegment -> linker.downcallHandle(
                         memorySegment,
                         FunctionDescriptor.of(
                                 ValueLayout.JAVA_INT,
@@ -147,7 +153,7 @@ public final class BrotliCompressor implements MessageCodec.StringCompressor {
                 )).orElseThrow();
 
         BROTLI_DECODER_TAKE_OUTPUT =
-                lookup.lookup("BrotliDecoderTakeOutput").map(memorySegment -> linker.downcallHandle(
+                decoderLookup.lookup("BrotliDecoderTakeOutput").map(memorySegment -> linker.downcallHandle(
                         memorySegment,
                         FunctionDescriptor.of(
                                 ValueLayout.ADDRESS,
@@ -157,7 +163,7 @@ public final class BrotliCompressor implements MessageCodec.StringCompressor {
                 )).orElseThrow();
 
         BROTLI_DECODER_DESTROY_INSTANCE =
-                lookup.lookup("BrotliDecoderDestroyInstance").map(memorySegment -> linker.downcallHandle(
+                decoderLookup.lookup("BrotliDecoderDestroyInstance").map(memorySegment -> linker.downcallHandle(
                         memorySegment,
                         FunctionDescriptor.ofVoid(ValueLayout.ADDRESS)
                 )).orElseThrow();
