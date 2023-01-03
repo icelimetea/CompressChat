@@ -14,3 +14,19 @@ In order to view compressed messages, other players should have this mod install
 
 Many Linux distributions provide packages for Brotli, so you can avoid building it by yourself.
 Check your Linux distro's repositories for details. I have to express my deepest condolences to Windows users.
+
+## Usage
+
+Anything between opening (`$!`) and closing (`!$`) marks is compressed.
+For example:
+```
+$!This part of the message is compressed,!$ but this is not compressed.
+```
+There are can be multiple compressed parts inside a single message:
+```
+$!This message!$ is $!nice!$
+```
+However, trying to write everything inside a single compressed part
+is a good idea, because each part is compressed separately,
+making it harder for compressor to make message smaller
+when there are a lot of them.
